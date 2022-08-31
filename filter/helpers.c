@@ -2,15 +2,17 @@
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
+
+
 // Convert image to grayscale
 void grayscale(int height, int width, RGBTRIPLE image[height][width])
 {
-    BYTE average; //ortalama değeri
+    BYTE average;
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
-            //ortalama değerleri bul ve yeni değer olarak ata
+            //finds average and re assigns it as a new value
             average = round((image[i][j].rgbtBlue + image[i][j].rgbtGreen + image[i][j].rgbtRed) / 3.00);
             image[i][j].rgbtGreen = average;
             image[i][j].rgbtRed = average;
@@ -28,7 +30,6 @@ void reflect(int height, int width, RGBTRIPLE image[height][width])
     {
         for (int j = 0; j <= width - 1 - j; j++)
         {
-            //resmin ortasına kadar sağdaki pikselle soldakini yer değiştir.
             temp = image[i][j].rgbtGreen;
             image[i][j].rgbtGreen = image[i][width - 1 - j].rgbtGreen;
             image[i][width - 1 - j].rgbtGreen = temp;
@@ -48,14 +49,14 @@ void reflect(int height, int width, RGBTRIPLE image[height][width])
 // Blur image
 void blur(int height, int width, RGBTRIPLE image[height][width])
 {
-    //geçici değer atama için üç boyutlu matris (0 = green, 1 = red, 2 = blue)
+    //3D matris (0 = green, 1 = red, 2 = blue)
     BYTE temp[height][width][3];
 
     for (int i = 0; i < height; i++)
     {
         for (int j = 0; j < width; j++)
         {
-            //üst kenar (6 piksel ortalaması)
+            //top of the image (average of 6 pixels)
             if (i == 0 && (j != 0 && j != width - 1))
             {
                 temp[i][j][0] = round((image[i][j].rgbtGreen + image[i][j + 1].rgbtGreen + image[i + 1][j].rgbtGreen +
@@ -67,7 +68,7 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
                 temp[i][j][2] = round((image[i][j].rgbtBlue + image[i][j + 1].rgbtBlue + image[i + 1][j].rgbtBlue +
                                        image[i + 1][j + 1].rgbtBlue + image[i][j - 1].rgbtBlue + image[i + 1][j - 1].rgbtBlue) / 6.00);
             }
-            //alt kenar (6 piksel ortalaması)
+            //bottom of the image (average of 6 pixels)
             else if (i == height - 1 && (j != 0 && j != width - 1))
             {
                 temp[i][j][0] = round((image[i][j].rgbtGreen + image[i][j + 1].rgbtGreen + image[i - 1][j].rgbtGreen +
@@ -79,7 +80,7 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
                 temp[i][j][2] = round((image[i][j].rgbtBlue + image[i][j + 1].rgbtBlue + image[i - 1][j].rgbtBlue +
                                        image[i - 1][j + 1].rgbtBlue + image[i][j - 1].rgbtBlue + image[i - 1][j - 1].rgbtBlue) / 6.00);
             }
-            //sol kenar (6 piksel ortalaması)
+            //left side of the image (average of 6 pixels)
             else if (j == 0 && (i != 0 && i != height - 1))
             {
                 temp[i][j][0] = round((image[i][j].rgbtGreen + image[i][j + 1].rgbtGreen + image[i - 1][j].rgbtGreen +
@@ -91,7 +92,7 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
                 temp[i][j][2] = round((image[i][j].rgbtBlue + image[i][j + 1].rgbtBlue + image[i - 1][j].rgbtBlue +
                                        image[i - 1][j + 1].rgbtBlue + image[i + 1][j].rgbtBlue + image[i + 1][j + 1].rgbtBlue) / 6.00);
             }
-            //sağ  kenar (6 piksel ortalaması)
+            //right side of the image (average of 6 pixels)
             else if (j == width - 1 && (i != 0 && i != height - 1))
             {
                 temp[i][j][0] = round((image[i][j].rgbtGreen + image[i][j - 1].rgbtGreen + image[i - 1][j].rgbtGreen +
@@ -103,7 +104,7 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
                 temp[i][j][2] = round((image[i][j].rgbtBlue + image[i][j - 1].rgbtBlue + image[i - 1][j].rgbtBlue +
                                        image[i - 1][j - 1].rgbtBlue + image[i + 1][j].rgbtBlue + image[i + 1][j - 1].rgbtBlue) / 6.00);
             }
-            //sol üst köşe (4 piksel ortalaması)
+            //top left corner (average of 4 pixels)
             else if (i == 0 && j == 0)
             {
                 temp[i][j][0] = round((image[i][j].rgbtGreen + image[i][j + 1].rgbtGreen + image[i + 1][j + 1].rgbtGreen +
@@ -115,7 +116,7 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
                 temp[i][j][2] = round((image[i][j].rgbtBlue + image[i][j + 1].rgbtBlue + image[i + 1][j + 1].rgbtBlue +
                                        image[i + 1][j].rgbtBlue) / 4.00);
             }
-            //sağ üst  köşe (4 piksel ortalaması)
+            //top right corner (average of 4 pixels)
             else if (i == 0 && j == width - 1)
             {
                 temp[i][j][0] = round((image[i][j].rgbtGreen + image[i][j - 1].rgbtGreen + image[i + 1][j].rgbtGreen +
@@ -127,7 +128,7 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
                 temp[i][j][2] = round((image[i][j].rgbtBlue + image[i][j - 1].rgbtBlue + image[i + 1][j].rgbtBlue +
                                        image[i + 1][j - 1].rgbtBlue) / 4.00);
             }
-            //sol alt  köşe (4 piksel ortalaması)
+            //bottom left corner (average of 4 pixels)
             else if (i == height - 1 && j == 0)
             {
                 temp[i][j][0] = round((image[i][j].rgbtGreen + image[i - 1][j].rgbtGreen + image[i][j + 1].rgbtGreen +
@@ -139,7 +140,7 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
                 temp[i][j][2] = round((image[i][j].rgbtBlue + image[i - 1][j].rgbtBlue + image[i][j + 1].rgbtBlue +
                                        image[i - 1][j + 1].rgbtBlue) / 4.00);
             }
-            //sağ alt  köşe (4 piksel ortalaması)
+            //bottom right corner (average of 4 pixels)
             else if (i == height - 1 && j == width - 1)
             {
                 temp[i][j][0] = round((image[i][j].rgbtGreen + image[i - 1][j].rgbtGreen + image[i][j - 1].rgbtGreen +
@@ -152,7 +153,7 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
                                        image[i - 1][j - 1].rgbtBlue) / 4.00);
             }
 
-            //geriye kalan pikseller (dokuz pikselin ortalaması)
+            //remaining pixels (average of 9 pixels)
             else if (i != 0 && i != height - 1 && j != 0 && j != width - 1)
             {
 
@@ -185,11 +186,11 @@ void blur(int height, int width, RGBTRIPLE image[height][width])
 // Detect edges
 void edges(int height, int width, RGBTRIPLE image[height][width])
 {
-    //R, G, B  ELEMANLI, KERNEL SON DEĞERLİ 3 BOYUTLU MATRİS ( ..[0] = GREEN, ..[1] = RED, ..[2] = BLUE )
+    //R, G, B  3D KERNEL MATRIS ( ..[0] = GREEN, ..[1] = RED, ..[2] = BLUE )
     int temp[height][width][3];
 
-    int Gx; //Gx KERNEL DEĞERİ
-    int Gy; //Gy KERNEL DEĞERİ
+    int Gx; //Gx KERNEL VALUE
+    int Gy; //Gy KERNEL VALUE
 
     for (int i = 0; i < height; i++)
     {
@@ -217,7 +218,7 @@ void edges(int height, int width, RGBTRIPLE image[height][width])
             //green gy
             Gy = - 2 * ay + 2 * by - cy + dy - ey + fy;
 
-            //green gx ve gy işlenmiş son hali
+            //green gx ve gy processed
             temp[i][j][0] = round(sqrt(Gx * Gx + Gy * Gy));
             if (temp[i][j][0] > 255)
             {
@@ -245,7 +246,7 @@ void edges(int height, int width, RGBTRIPLE image[height][width])
             Gy = -2 * ay + 2 * by - cy + dy - ey + fy;
 
 
-            //red gx ve gy işlenmiş son hali
+            //red gx ve gy processed values
             temp[i][j][1] = round(sqrt(Gx * Gx + Gy * Gy));
             if (temp[i][j][1] > 255)
             {
@@ -272,7 +273,7 @@ void edges(int height, int width, RGBTRIPLE image[height][width])
             //blue gy
             Gy = - 2 * ay + 2 * by - cy + dy - ey + fy;
 
-            //blue gx ve gy işlenmiş son hali
+            //blue gx ve gy processed values
             temp[i][j][2] = round(sqrt(Gx * Gx + Gy * Gy));
             if (temp[i][j][2] > 255)
             {
